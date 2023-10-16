@@ -13,25 +13,22 @@ class NFA():
 
     def load(self, automaton_file): # завантажує автомат з файлу
         with open(automaton_file, mode='r') as file:
-            try:
-                self.alphabet_card = int(file.readline())
-                self.states_card = int(file.readline())
-                self.init_state = str(file.readline().split()[0])
-                self.states |= frozenset([self.init_state])
-                self.current_states = {self.init_state}
-                temp_line = file.readline().split()
-                for i in range(len(temp_line) - 1):
-                    self.finals_states |= frozenset([temp_line[i+1]])
-                    self.states |= frozenset([temp_line[i+1]])
-                for temp_line in file:
-                    temp_line = temp_line.split()
-                    self.states |= frozenset([temp_line[0], temp_line[2]])
-                    if (temp_line[0], temp_line[1]) in self.transitions.keys():
-                        self.transitions[(temp_line[0], temp_line[1])] |= frozenset([(temp_line[2])])
-                    else:
-                        self.transitions[(temp_line[0], temp_line[1])] = frozenset([(temp_line[2])])
-            except Exception as e:
-                print(f"Error while loading automaton: {e}")
+            self.alphabet_card = int(file.readline())
+            self.states_card = int(file.readline())
+            self.init_state = str(file.readline().split()[0])
+            self.states = frozenset([self.init_state])
+            self.current_states = {self.init_state}
+            temp_line = file.readline().split()
+            for i in range(len(temp_line) - 1):
+                self.finals_states |= frozenset([temp_line[i+1]])
+                self.states |= frozenset([temp_line[i+1]])
+            for temp_line in file:
+                temp_line = temp_line.split()
+                self.states |= frozenset([temp_line[0], temp_line[2]])
+                if (temp_line[0], temp_line[1]) in self.transitions.keys():
+                    self.transitions[(temp_line[0], temp_line[1])] |= frozenset([(temp_line[2])])
+                else:
+                    self.transitions[(temp_line[0], temp_line[1])] = frozenset([(temp_line[2])])
 
     def save(self, automaton_file):# зберігає автомат у файл
         with open(automaton_file, mode='w') as file:
@@ -53,7 +50,7 @@ class NFA():
                 file.write("\n")
 
     def reset(self): # встановлює поточний стан автомата в початковий
-        self.current_state = {self.init_state}
+        self.current_states = frozenset([self.init_state])
 
     def process(self, word) -> bool: # приймає на вхід слово і повертає True якщо допускає це слово
         for symbol in word:
@@ -84,8 +81,16 @@ class NFA():
 
 
 if __name__ == "__main__":
-    automaton = NFA('automata') #створюємо об'єкт класу NFA,
-                                #автомат завантажується з файлу 'automata'
+    while True:
+        print("Введіть шлях до файлу з автоматом:")
+        try:
+            file_name = str(input())
+            automaton = NFA(file_name)
+            print("Автомат завантажено")
+            break
+        except:
+            print("Помилка при заванатженні автомата з файлу")
+
     while True:
         print("Введіть слово: ")
         word = str(input())         #введення слова користувачем

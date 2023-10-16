@@ -1,31 +1,6 @@
 from nfa import NFA
 import copy
-
-fake_init = 'q0'
-fake_final = {'q2'}
-fake_trans = {
-    ('q0', '0'): {'q3'},
-    ('q3', '0'): {'q3'},
-    ('q3', '1'): {'q4'},
-    ('q4', '0'): {'q3'},
-    ('q4', '1'): {'q0'},
-    ('q0', '1'): {'q0'},
-    ('q1', '1'): {'q2'}
-    }
-
-fake_trans = {
-    ('q0', '0'): {'q0', 'q1'},
-    ('q0', '1'): {'q0'},
-    ('q1', '1'): {'q2'}
-}
-{
-    ('q0', '0'): {'q0', 'q1', 'q2'},
-    ('q0', '1'): {'q1', 'q2'},
-    ('q1', '0'): {'q0', 'q1'},
-    ('q1', '1'): {'q2'},
-    ('q2', '0'): {'q0', 'q3'},
-    ('q2', '1'): {'q2', 'q3'},
-}
+import random
 
 def dfa_from_nfa(nfa: NFA) -> NFA:
     dfa = copy.deepcopy(nfa)
@@ -66,12 +41,31 @@ def dfa_from_nfa(nfa: NFA) -> NFA:
     return dfa
 
 
+def generate_random_string(length):
+    letters = ['a', 'b', 'c']
+    random_string = ''.join(random.choice(letters) for _ in range(length))
+    return random_string
+
+def global_test(n, nfa: NFA, dfa: NFA) -> int:
+    mathces = 0
+    for _ in range(n):
+        random_length = random.randint(1, 1000)
+        random_word = generate_random_string(random_length)
+        if dfa.process(random_word) == nfa.process(random_word):
+            mathces += 1
+        dfa.reset()
+        nfa.reset()
+    return mathces
+
+
 if __name__ == "__main__":
 
     nfa = NFA('nfa_automaton')
     dfa = dfa_from_nfa(nfa)
     dfa.save('dfa_automaton')
 
-    #word = '010010011111101'
-    #print('dfa:', word, dfa.process(word))
-    #print('nfa:', word, nfa.process(word))
+    tests = 10000
+    matches = global_test(tests, nfa, dfa)
+
+    print("Кількість тестів: ", tests)
+    print(f"Кількість пройдених тестів: {matches} = {round(matches/tests*100)}%")
